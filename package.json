@@ -1,0 +1,25 @@
+{
+  "name": "rocketlaunch-notifs",
+  "version": "1.0.0",
+  "description": "Sends signal notificatons for new rocket launches.",
+  "main": "main.js",
+  "scripts": {
+    "test": "node .",
+    "setup": "touch config.json; touch previous.json; curl \"https://fdo.rocketlaunch.live/json/launches/next/1\" > previous.json; echo \"Created configuration file. Enter phone number and CallMeBot api key.\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/caecilliusinhorto/rocketlaunch-notifs.git"
+  },
+  "author": "caecilliusinhorto",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/caecilliusinhorto/rocketlaunch-notifs/issues"
+  },
+  "homepage": "https://github.com/caecilliusinhorto/rocketlaunch-notifs#readme",
+  "dependencies": {
+    "axios": "^0.26.0",
+    "isomorphic-unfetch": "^3.1.0",
+    "node-cron": "^3.0.0"
+  }
+}
