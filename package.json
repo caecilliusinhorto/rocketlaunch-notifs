@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "node .",
-    "setup": "touch config.json; touch previous.json; curl \"https://fdo.rocketlaunch.live/json/launches/next/1\" > previous.json; echo \"Created configuration file. Enter phone number and CallMeBot api key.\""
+    "setup": "touch config.json; touch previous.json; curl \"https://fdo.rocketlaunch.live/json/launches/next/1\" > previous.json; echo \"Created configuration file. Enter details..\""
   },
   "repository": {
     "type": "git",
