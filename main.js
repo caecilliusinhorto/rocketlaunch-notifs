@@ -1,6 +1,14 @@
 const fetch = require('isomorphic-unfetch');
 fs = require('fs')
 const { app_key, app_secret, target_type } = require('./config.json')
+//config.json:
+/*
+{
+    "app_key": "pushed app key",
+    "app_secret": "pushed app secret",
+    "target_type": "app"
+} 
+*/
 const axios = require('axios')
 const cron = require('node-cron')
 
