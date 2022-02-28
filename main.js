@@ -1,13 +1,8 @@
 const fetch = require('isomorphic-unfetch');
 fs = require('fs')
+const { app_key, app_secret, target_type } = require('./config.json')
 const axios = require('axios')
-const { phoneNumber, apiKey} = require('./config.json')
-/* config.json:
-{
-    "apiKey":"CallMeBot signal API key",
-    "phoneNumber":"phone number to sent notifications to "
-} 
-*/
+const cron = require('node-cron')
 
 function check_launches() {
     //Read previous data
@@ -25,16 +20,21 @@ function check_launches() {
                 const [mission] = list.result
                     //If there is a new launch, update previous.json and send a notification
                     if (mission.id != oldId) {
-                        //fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
-                        const message = mission.launch_description
-                        const encodedMessage = encodeURIComponent(message.slice(0, -1))
-                        console.log(encodedMessage)
-                        //TODO: fix this
-                        //axios.get(`https://api.callmebot.com/signal/send.php?phone=${phoneNumber}&apikey=${apiKey}&text=${encodedMessage}`)
+                        fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
+                        let message = mission.launch_description
+                        let payload = {
+                            "app_key": app_key,
+                            "app_secret": app_secret,
+                            "target_type": target_type,
+                            "content": message
+                        }
+                        axios.post("https://api.pushed.co/1/push", data = payload)
                     } 
             })
             )
     });
 }
 
-check_launches()
+cron.schedule('0 * * * *', () => {
+    check_launches() //checks for new launches every hour
+});

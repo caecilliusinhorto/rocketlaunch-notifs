@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/caecilliusinhorto/rocketlaunch-notifs#readme",
   "dependencies": {
+    "@stdlib/string-percent-encode": "^0.0.8",
     "axios": "^0.26.0",
     "isomorphic-unfetch": "^3.1.0",
     "node-cron": "^3.0.0"
