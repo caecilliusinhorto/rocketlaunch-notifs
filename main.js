@@ -1,6 +1,7 @@
 const fetch = require('isomorphic-unfetch');
 fs = require('fs')
 const { app_key, app_secret, target_type } = require('./config.json')
+let date = new Date();
 //config.json:
 /*
 {
@@ -43,6 +44,33 @@ function check_launches() {
     });
 }
 
-cron.schedule('0 7,4 * * *', () => {
-    check_launches() //checks for new launches every hour
+function launchtime() {
+    fs.readFile('previous.json', 'utf8', function (err, data) {
+        if (err) {
+            console.error("Please make sure you have run `npm run setup`.")
+        }
+        const [previous] = Array(JSON.parse(data))
+        const [oldResult] = previous.result
+        let time =  oldResult.win_open
+        let hour = time.slice(11, -4)
+        currentHour = date.getHours()
+        // sends a notification if the rocket launches in less than one hour
+        if (currentHour == hour-1) { 
+            let payload = {
+                "app_key": app_key,
+                "app_secret": app_secret,
+                "target_type": target_type,
+                "content": `Launching soon: ${oldResult.provider.name} ${oldResult.vehicle.name} at ${oldResult.win_open} from ${oldResult.pad.location.name}`
+            }
+            axios.post("https://api.pushed.co/1/push", data = payload)
+        }
+    })
+}
+
+cron.schedule('0 0,8,16 * * *', () => {
+    check_launches() //checks for new launches every 8 hours
 });
+
+cron.schedule('2 * * * *', () => {
+    launchtime()//checks for launch time at 2m past every hour
+})
