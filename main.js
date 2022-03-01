@@ -55,7 +55,7 @@ function launchtime() {
         let hour = time.slice(11, -4)
         currentHour = date.getHours()
         // sends a notification if the rocket launches in less than one hour
-        if (currentHour == hour-1) { 
+        if (currentHour == hour) { 
             let payload = {
                 "app_key": app_key,
                 "app_secret": app_secret,
