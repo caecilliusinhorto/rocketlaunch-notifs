@@ -43,6 +43,6 @@ function check_launches() {
     });
 }
 
-cron.schedule('0 * * * *', () => {
+cron.schedule('0 7,4 * * *', () => {
     check_launches() //checks for new launches every hour
 });
