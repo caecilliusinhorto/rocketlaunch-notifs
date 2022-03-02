@@ -14,21 +14,24 @@ const axios = require('axios')
 const cron = require('node-cron')
 
 function check_launches() {
-    //Read previous data
-    fs.readFile('previous.json', 'utf8', function (err, data) {
-        if (err) {
-            console.error("Please make sure you have run `npm run setup`.")
-        }
-        const [previous] = Array(JSON.parse(data))
-        const [oldResult] = previous.result
-        const oldId = oldResult.id
-        fetch("https://fdo.rocketlaunch.live/json/launches/next/1", { method: "Get" })
-            .then(res => res.json())
-            .then((response => {
-                const [list] = Array(response)
-                const [mission] = list.result
+    try {
+        //Read previous data
+        console.log(`${date.getHours()} : Checking for new launches...`)
+        fs.readFile('previous.json', 'utf8', function (err, data) {
+            if (err) {
+                console.error("Please make sure you have run `npm run setup`.")
+            }
+            const [previous] = Array(JSON.parse(data))
+            const [oldResult] = previous.result
+            const oldId = oldResult.id
+            fetch("https://fdo.rocketlaunch.live/json/launches/next/1", { method: "Get" })
+                .then(res => res.json())
+                .then((response => {
+                    const [list] = Array(response)
+                    const [mission] = list.result
                     //If there is a new launch, update previous.json and send a notification
                     if (mission.id != oldId) {
+                        console.log(`${date.getHours()} New launch found: ${mission.name}`)
                         fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
                         let message = mission.launch_description
                         let payload = {
@@ -37,34 +40,45 @@ function check_launches() {
                             "target_type": target_type,
                             "content": message
                         }
+                        console.log(`${date.getHours()} : Notification sent: ${payload.content}`)
                         axios.post("https://api.pushed.co/1/push", data = payload)
-                    } 
-            })
-            )
-    });
+                    }
+                })
+                )
+        });
+    } catch (err) {
+        console.log(`${date.getHours()} : Error while getting data: ${err.message}`)
+    }
 }
 
 function launchtime() {
-    fs.readFile('previous.json', 'utf8', function (err, data) {
-        if (err) {
-            console.error("Please make sure you have run `npm run setup`.")
-        }
-        const [previous] = Array(JSON.parse(data))
-        const [oldResult] = previous.result
-        let time =  oldResult.win_open
-        let hour = time.slice(11, -4)
-        currentHour = date.getHours()
-        // sends a notification if the rocket launches in less than one hour
-        if (currentHour == hour-1) { 
-            let payload = {
-                "app_key": app_key,
-                "app_secret": app_secret,
-                "target_type": target_type,
-                "content": `Launching soon: ${oldResult.provider.name} ${oldResult.vehicle.name} at ${oldResult.win_open} from ${oldResult.pad.location.name}`
+    try {
+        fs.readFile('previous.json', 'utf8', function (err, data) {
+            if (err) {
+                console.error("Please make sure you have run `npm run setup`.")
             }
-            axios.post("https://api.pushed.co/1/push", data = payload)
-        }
-    })
+            console.log(`${date.getHours()} : Checking launch time...`)
+            const [previous] = Array(JSON.parse(data))
+            const [oldResult] = previous.result
+            let time = oldResult.win_open
+            let hour = time.slice(11, -4)
+            let currentHour = date.getHours()
+            // sends a notification if the rocket launches in less than one hour
+            if (currentHour == hour) {
+                console.log(`${date.getHours()} : Launching soon. (at ${hour})`)
+                let payload = {
+                    "app_key": app_key,
+                    "app_secret": app_secret,
+                    "target_type": target_type,
+                    "content": `Launching soon: ${oldResult.provider.name} ${oldResult.vehicle.name} at ${oldResult.win_open} from ${oldResult.pad.location.name}`
+                }
+                console.log(`${date.getHours()} : Notification sent: ${payload.content}`)
+                axios.post("https://api.pushed.co/1/push", data = payload)
+            }
+        })
+    } catch (err) {
+        console.log(`${date.getHours()} : Error while getting data: ${err.message}`)
+    }
 }
 
 cron.schedule('0 0,8,16 * * *', () => {
