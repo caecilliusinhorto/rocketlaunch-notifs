@@ -55,7 +55,7 @@ function launchtime() {
         let hour = time.slice(11, -4)
         currentHour = date.getHours()
         // sends a notification if the rocket launches in less than one hour
-        if (currentHour == hour) { 
+        if (currentHour == hour-1) { 
             let payload = {
                 "app_key": app_key,
                 "app_secret": app_secret,
@@ -71,6 +71,6 @@ cron.schedule('0 0,8,16 * * *', () => {
     check_launches() //checks for new launches every 8 hours
 });
 
-cron.schedule('2 * * * *', () => {
-    launchtime()//checks for launch time at 2m past every hour
+cron.schedule('0 * * * *', () => {
+    launchtime()//checks for launch time at every hour
 })
