@@ -1,7 +1,6 @@
 const fetch = require('isomorphic-unfetch');
 fs = require('fs')
 const { app_key, app_secret, target_type } = require('./config.json')
-let date = new Date();
 //config.json:
 /*
 {
@@ -16,6 +15,7 @@ const cron = require('node-cron')
 function check_launches() {
     try {
         //Read previous data
+        let date = new Date();
         console.log(`${date.getHours()} : Checking for new launches...`)
         fs.readFile('previous.json', 'utf8', function (err, data) {
             if (err) {
@@ -53,6 +53,7 @@ function check_launches() {
 
 function launchtime() {
     try {
+        let date = new Date();
         fs.readFile('previous.json', 'utf8', function (err, data) {
             if (err) {
                 console.error("Please make sure you have run `npm run setup`.")
@@ -62,9 +63,11 @@ function launchtime() {
             const [oldResult] = previous.result
             let time = oldResult.win_open
             let hour = time.slice(11, -4)
+            let day = time.slice(8, -7)
             let currentHour = date.getHours()
+            let currentDay = date.getDate()
             // sends a notification if the rocket launches in less than one hour
-            if (currentHour == hour) {
+            if (currentHour == hour && currentDay == day) {
                 console.log(`${date.getHours()} : Launching soon. (at ${hour})`)
                 let payload = {
                     "app_key": app_key,
@@ -88,3 +91,4 @@ cron.schedule('0 0,8,16 * * *', () => {
 cron.schedule('0 * * * *', () => {
     launchtime()//checks for launch time at every hour
 })
+console.log("Started checking for launches.")

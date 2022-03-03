@@ -1,10 +1,12 @@
 {
   "name": "rocketlaunch-notifs",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Sends notificatons for new rocket launches.",
   "main": "main.js",
   "scripts": {
     "test": "node .",
+    "start":"echo \"Starting main.js...\"; node .",
+    "update_launches":"curl \"https://fdo.rocketlaunch.live/json/launches/next/1\" > previous.json",
     "setup": "touch config.json; touch previous.json; curl \"https://fdo.rocketlaunch.live/json/launches/next/1\" > previous.json; echo \"Created configuration file. Enter details..\""
   },
   "repository": {
