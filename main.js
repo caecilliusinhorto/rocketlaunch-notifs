@@ -24,16 +24,30 @@ function check_launches() {
             const [previous] = Array(JSON.parse(data))
             const [oldResult] = previous.result
             const oldId = oldResult.id
+            const oldUpdate = oldResult.modified
             fetch("https://fdo.rocketlaunch.live/json/launches/next/1", { method: "Get" })
                 .then(res => res.json())
                 .then((response => {
                     const [list] = Array(response)
                     const [mission] = list.result
                     //If there is a new launch, update previous.json and send a notification
-                    if (mission.id != oldId) {
+                    if (mission.id != oldId ) {
                         console.log(`${date.getHours()} New launch found: ${mission.name}`)
                         fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
-                        let message = mission.launch_description
+                        let message = `Next launch: ${mission.launch_description}`
+                        let payload = {
+                            "app_key": app_key,
+                            "app_secret": app_secret,
+                            "target_type": target_type,
+                            "content": message
+                        }
+                        console.log(`${date.getHours()} : Notification sent: ${payload.content}`)
+                        axios.post("https://api.pushed.co/1/push", data = payload)
+                    } //if the launch info has been modified, update previous.json send a notification. 
+                    else if (mission.modified != oldUpdate) { 
+                        console.log(`${date.getHours()} Launch date updated: ${mission.name}`)
+                        fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
+                        let message = `Launch info modified: ${mission.launch_description}`
                         let payload = {
                             "app_key": app_key,
                             "app_secret": app_secret,
