@@ -1,6 +1,6 @@
 {
   "name": "rocketlaunch-notifs",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Sends notificatons for new rocket launches.",
   "main": "main.js",
   "scripts": {
