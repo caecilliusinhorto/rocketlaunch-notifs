@@ -87,7 +87,7 @@ function launchtime() {
                     "app_key": app_key,
                     "app_secret": app_secret,
                     "target_type": target_type,
-                    "content": `Launching soon: ${oldResult.provider.name} ${oldResult.vehicle.name} at ${oldResult.win_open} from ${oldResult.pad.location.name}`
+                    "content": `Launching soon: ${oldResult.provider.name} ${oldResult.vehicle.name} in around ${oldResult.win_open.slice(14, -1)} mins from ${oldResult.pad.location.name}`
                 }
                 console.log(`${date.getHours()} : Notification sent: ${payload.content}`)
                 axios.post("https://api.pushed.co/1/push", data = payload)
