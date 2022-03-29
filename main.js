@@ -12,6 +12,16 @@ const { app_key, app_secret, target_type } = require('./config.json')
 const axios = require('axios')
 const cron = require('node-cron')
 
+// determine timezone
+let date1 = new Date()
+let utc_offset
+if (date1.getTimezoneOffset() < 0) {
+    utc_offset = (date1.getTimezoneOffset() * -1)/60
+    console.log(`Timezone: UTC+${utc_offset}`)
+} else {
+    utc_offset = date1.getTimezoneOffset() / 60
+}
+
 function check_launches() {
     try {
         //Read previous data
@@ -76,13 +86,14 @@ function launchtime() {
             const [previous] = Array(JSON.parse(data))
             const [oldResult] = previous.result
             let time = oldResult.win_open
-            let hour = time.slice(11, -4)
+            let hourUTC = time.slice(11, -4)
+            let hourLocal = parseInt(hourUTC) + utc_offset
             let day = time.slice(8, -7)
             let currentHour = date.getHours()
             let currentDay = date.getDate()
             // sends a notification if the rocket launches in less than one hour
-            if (currentHour == hour && currentDay == day) {
-                console.log(`${date.getHours()} : Launching soon. (at ${hour})`)
+            if (currentHour == hourLocal && currentDay == day) {
+                console.log(`${date.getHours()} : Launching soon. (at ${hourLocal})`)
                 let payload = {
                     "app_key": app_key,
                     "app_secret": app_secret,
@@ -105,4 +116,5 @@ cron.schedule('0 0,8,16 * * *', () => {
 cron.schedule('0 * * * *', () => {
     launchtime()//checks for launch time at every hour
 })
+
 console.log("Started checking for launches.")
