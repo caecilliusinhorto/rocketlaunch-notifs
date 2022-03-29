@@ -17,10 +17,10 @@ let date1 = new Date()
 let utc_offset
 if (date1.getTimezoneOffset() < 0) {
     utc_offset = (date1.getTimezoneOffset() * -1)/60
-    console.log(`Timezone: UTC+${utc_offset}`)
 } else {
     utc_offset = date1.getTimezoneOffset() / 60
 }
+console.log(`Timezone: UTC+${utc_offset}`)
 
 function check_launches() {
     try {
