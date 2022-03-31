@@ -1,35 +1,31 @@
 const fetch = require('isomorphic-unfetch');
 fs = require('fs')
-const { app_key, app_secret, target_type } = require('./config.json')
+const { app_key, app_secret, target_type, check_freq } = require('./config.json')
 //config.json:
 /*
 {
     "app_key": "pushed app key",
     "app_secret": "pushed app secret",
-    "target_type": "app"
+    "target_type": "app",
+    "check_freq" : "cron times for checking for new launches"
 } 
 */
 const axios = require('axios')
 const cron = require('node-cron')
 
 // determine timezone
-let date1 = new Date()
-let utc_offset
-if (date1.getTimezoneOffset() < 0) {
-    utc_offset = (date1.getTimezoneOffset() * -1)/60
-} else {
-    utc_offset = date1.getTimezoneOffset() / 60
-}
+const utc_offset = ((new Date().getTimezoneOffset()) * -1) / 60 
 console.log(`Timezone: UTC+${utc_offset}`)
+// note that notifications are sent relative to local time on the server, the utc offset is used because rocketlaunch returns launch time in utc
 
 function check_launches() {
     try {
         //Read previous data
-        let date = new Date();
+        const date = new Date();
         console.log(`${date.getHours()} : Checking for new launches...`)
         fs.readFile('previous.json', 'utf8', function (err, data) {
             if (err) {
-                console.error("Please make sure you have run `npm run setup`.")
+                console.error("No previous launch data found!")
             }
             const [previous] = Array(JSON.parse(data))
             const [oldResult] = previous.result
@@ -44,8 +40,8 @@ function check_launches() {
                     if (mission.id != oldId ) {
                         console.log(`${date.getHours()} New launch found: ${mission.name}`)
                         fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
-                        let message = `Next launch: ${mission.launch_description}`
-                        let payload = {
+                        const message = `Next launch: ${mission.launch_description}`
+                        const payload = {
                             "app_key": app_key,
                             "app_secret": app_secret,
                             "target_type": target_type,
@@ -57,8 +53,8 @@ function check_launches() {
                     else if (mission.modified != oldUpdate) { 
                         console.log(`${date.getHours()} Launch date updated: ${mission.name}`)
                         fs.writeFileSync("previous.json", JSON.stringify(response), 'utf8');
-                        let message = `Launch info modified: ${mission.launch_description}`
-                        let payload = {
+                        const message = `Launch info modified: ${mission.launch_description}`
+                        const payload = {
                             "app_key": app_key,
                             "app_secret": app_secret,
                             "target_type": target_type,
@@ -77,24 +73,24 @@ function check_launches() {
 
 function launchtime() {
     try {
-        let date = new Date();
+        const date = new Date();
         fs.readFile('previous.json', 'utf8', function (err, data) {
             if (err) {
-                console.error("Please make sure you have run `npm run setup`.")
+                console.error("No previous launch data found!")
             }
             console.log(`${date.getHours()} : Checking launch time...`)
             const [previous] = Array(JSON.parse(data))
             const [oldResult] = previous.result
-            let time = oldResult.win_open
-            let hourUTC = time.slice(11, -4)
-            let hourLocal = parseInt(hourUTC) + utc_offset
-            let day = time.slice(8, -7)
-            let currentHour = date.getHours()
-            let currentDay = date.getDate()
+            const time = oldResult.win_open
+            const hourUTC = time.slice(11, -4) // times are in iso8601 format
+            const hourLocal = parseInt(hourUTC) + utc_offset
+            const day = time.slice(8, -7)
+            const currentHour = date.getHours()
+            const currentDay = date.getDate()
             // sends a notification if the rocket launches in less than one hour
             if (currentHour == hourLocal && currentDay == day) {
                 console.log(`${date.getHours()} : Launching soon. (at ${hourLocal})`)
-                let payload = {
+                const payload = {
                     "app_key": app_key,
                     "app_secret": app_secret,
                     "target_type": target_type,
@@ -109,7 +105,7 @@ function launchtime() {
     }
 }
 
-cron.schedule('0 0,8,16 * * *', () => {
+cron.schedule(check_freq, () => {
     check_launches() //checks for new launches every 8 hours
 });
 
