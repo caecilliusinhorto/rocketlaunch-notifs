@@ -82,7 +82,8 @@ cron.schedule('0 * * * *', () => { //checks every hour if a launch is about to h
 			const time = oldResult.win_open
 			// sends a notification if the rocket launches in less than one hour
 			if (date.getHours() == (parseInt(time.slice(11, -4)) + utc_offset) && date.getDate() == time.slice(8, -7)) {
-				console.log(`${date.getHours()} : Launching soon. (at ${hourLocal})`)
+				console.log(`${date.getHours()} : Launching soon. (at ${parseInt(time.slice(11, -4)) + utc_offset
+})`)
 				const payload = {
 					"app_key": app_key,
 					"app_secret": app_secret,
