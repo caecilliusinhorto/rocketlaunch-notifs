@@ -18,7 +18,7 @@ const utc_offset = ((new Date().getTimezoneOffset()) * -1) / 60
 console.log(`Timezone: UTC+${utc_offset}`)
 // note that notifications are sent relative to local time on the server, the utc offset is used because rocketlaunch returns launch time in utc
 
-cron.schedule("* * * * *", () => { //checks for new launches
+cron.schedule(check_freq, () => { //checks for new launches
 	try {
 		//Read previous data
 		const date = new Date();
@@ -100,3 +100,4 @@ cron.schedule('0 * * * *', () => { //checks every hour if a launch is about to h
 })
 
 console.log("Started checking for launches.")
+
